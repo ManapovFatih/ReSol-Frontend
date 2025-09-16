@@ -12,7 +12,6 @@ const TaskItem = ({ task, onEdit, onDelete }) => {
       onDelete(); // Обновляем список
     } catch (error) {
       console.error('Ошибка при обновлении статуса:', error);
-      alert('Не удалось обновить статус задачи');
     } finally {
       setIsUpdating(false);
     }
@@ -29,7 +28,6 @@ const TaskItem = ({ task, onEdit, onDelete }) => {
       onDelete(); // Обновляем список
     } catch (error) {
       console.error('Ошибка при удалении задачи:', error);
-      alert('Не удалось удалить задачу');
     } finally {
       setIsDeleting(false);
     }
