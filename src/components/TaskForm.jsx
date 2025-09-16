@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { createTask, updateTask } from '../services/api';
 
 const TaskForm = ({ task, onBack, onSave }) => {
   const [title, setTitle] = useState('');
@@ -37,17 +36,12 @@ const TaskForm = ({ task, onBack, onSave }) => {
     setIsSubmitting(true);
 
     try {
-      if (task) {
-        await updateTask(task.id, { title, description, status });
-      } else {
-        await createTask({ title, description, status });
-      }
-
-      onSave();
-      onBack();
+      const taskData = { title, description, status };
+      await onSave(taskData); // Передаем данные в onSave
     } catch (error) {
       console.error('Ошибка при сохранении задачи:', error);
-      alert('Не удалось сохранить задачу');
+      // Ошибка будет обработана в родительском компоненте
+      throw error; // Пробрасываем ошибку дальше
     } finally {
       setIsSubmitting(false);
     }

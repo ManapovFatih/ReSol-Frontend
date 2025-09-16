@@ -289,7 +289,7 @@ textarea {
       background-color: $bg-second;
     }
 
-    &.active {
+    &:active {
       background-color: rgba($main-color, 0.1);
       color: $main-color;
       font-weight: 600;

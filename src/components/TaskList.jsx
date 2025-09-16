@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import TaskItem from './TaskItem';
 import Pagination from './Pagination';
 
-const TaskList = ({ tasks, loading, error, onRefresh, onCreateTask, onEditTask }) => {
+const TaskList = ({ tasks, loading, error, onRefresh, onDeleteTask }) => {
+  const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [filter, setFilter] = useState('all');
   const tasksPerPage = 6;
@@ -23,6 +25,14 @@ const TaskList = ({ tasks, loading, error, onRefresh, onCreateTask, onEditTask }
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
+  };
+
+  const handleCreateTask = () => {
+    navigate('/tasks/new');
+  };
+
+  const handleEditTask = (task) => {
+    navigate(`/tasks/edit/${task.id}`);
   };
 
   if (loading) {
@@ -57,7 +67,7 @@ const TaskList = ({ tasks, loading, error, onRefresh, onCreateTask, onEditTask }
         <div className="card-header">
           <h2 className="card-title">Мои задачи</h2>
           <div className="card-actions">
-            <button className="btn btn-primary" onClick={onCreateTask}>
+            <button className="btn btn-primary" onClick={handleCreateTask}>
               Новая задача
             </button>
           </div>
@@ -94,7 +104,7 @@ const TaskList = ({ tasks, loading, error, onRefresh, onCreateTask, onEditTask }
           <div className="empty-state">
             <div className="empty-state-icon">📝</div>
             <p className="empty-state-text">Задачи не найдены</p>
-            <button className="btn btn-primary" onClick={onCreateTask}>
+            <button className="btn btn-primary" onClick={handleCreateTask}>
               Создать первую задачу
             </button>
           </div>
@@ -105,8 +115,8 @@ const TaskList = ({ tasks, loading, error, onRefresh, onCreateTask, onEditTask }
                 <TaskItem
                   key={task.id}
                   task={task}
-                  onEdit={onEditTask}
-                  onDelete={onRefresh}
+                  onEdit={() => handleEditTask(task)}
+                  onDelete={() => onDeleteTask(task.id)}
                 />
               ))}
             </div>

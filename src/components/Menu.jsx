@@ -1,24 +1,29 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 
-const Menu = ({ isOpen, onClose, onCreateTask, onBack }) => {
-  const handleCreateTask = () => {
-    onCreateTask();
-    onClose();
-  };
-
+const Menu = ({ isOpen, onClose }) => {
   return (
     <>
       <div className={`menu ${isOpen ? 'open' : ''}`}>
-        <ul className="menu-list">
-          <li className="menu-item active" onClick={onBack}>
+        <div className="menu-list">
+          <NavLink
+            to="/tasks"
+            className="menu-item"
+            onClick={onClose}
+            end
+          >
             <span className="menu-icon">✓</span>
             <span className="menu-text">Все задачи</span>
-          </li>
-          <li className="menu-item" onClick={handleCreateTask}>
+          </NavLink>
+          <NavLink
+            to="/tasks/new"
+            className="menu-item"
+            onClick={onClose}
+          >
             <span className="menu-icon">+</span>
             <span className="menu-text">Новая задача</span>
-          </li>
-        </ul>
+          </NavLink>
+        </div>
       </div>
       {isOpen && <div className="menu-overlay" onClick={onClose}></div>}
     </>
