@@ -2,30 +2,26 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TaskItem from './TaskItem';
 import Pagination from './Pagination';
+import DeleteModal from './DeleteModal';
+import { FiPlus, FiAlertTriangle, FiFileText } from 'react-icons/fi';
 
-const TaskList = ({ tasks, loading, error, onRefresh, onDeleteTask }) => {
+const TaskList = ({
+  tasks,
+  loading,
+  error,
+  pagination,
+  filters,
+  onRefresh,
+  onDeleteTask,
+  onFilterChange,
+  onPageChange
+}) => {
   const navigate = useNavigate();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [filter, setFilter] = useState('all');
-  const tasksPerPage = 6;
-
-  // Фильтрация задач
-  const filteredTasks = tasks.filter(task => {
-    if (filter === 'completed') return task.status === 'completed';
-    if (filter === 'in-progress') return task.status === 'in-progress';
-    if (filter === 'new') return task.status === 'new';
-    return true;
+  const [deleteModal, setDeleteModal] = useState({
+    isOpen: false,
+    taskId: null,
+    taskTitle: ''
   });
-
-  // Пагинация
-  const indexOfLastTask = currentPage * tasksPerPage;
-  const indexOfFirstTask = indexOfLastTask - tasksPerPage;
-  const currentTasks = filteredTasks.slice(indexOfFirstTask, indexOfLastTask);
-  const totalPages = Math.ceil(filteredTasks.length / tasksPerPage);
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
 
   const handleCreateTask = () => {
     navigate('/tasks/new');
@@ -33,6 +29,29 @@ const TaskList = ({ tasks, loading, error, onRefresh, onDeleteTask }) => {
 
   const handleEditTask = (task) => {
     navigate(`/tasks/edit/${task.id}`);
+  };
+
+  const handleDeleteClick = (task) => {
+    setDeleteModal({
+      isOpen: true,
+      taskId: task.id,
+      taskTitle: task.title
+    });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (deleteModal.taskId) {
+      await onDeleteTask(deleteModal.taskId);
+    }
+    setDeleteModal({ isOpen: false, taskId: null, taskTitle: '' });
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteModal({ isOpen: false, taskId: null, taskTitle: '' });
+  };
+
+  const handleFilterChange = (filter) => {
+    onFilterChange(filter === 'all' ? {} : { status: filter });
   };
 
   if (loading) {
@@ -50,7 +69,9 @@ const TaskList = ({ tasks, loading, error, onRefresh, onDeleteTask }) => {
       <div className="tasks-container">
         <div className="card">
           <div className="empty-state">
-            <div className="empty-state-icon">⚠️</div>
+            <div className="empty-state-icon">
+              <FiAlertTriangle size={32} />
+            </div>
             <p className="empty-state-text">{error}</p>
             <button className="btn btn-primary" onClick={onRefresh}>
               Попробовать снова
@@ -63,11 +84,19 @@ const TaskList = ({ tasks, loading, error, onRefresh, onDeleteTask }) => {
 
   return (
     <div className="tasks-container">
+      <DeleteModal
+        isOpen={deleteModal.isOpen}
+        taskTitle={deleteModal.taskTitle}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+      />
+
       <div className="card">
         <div className="card-header">
           <h2 className="card-title">Мои задачи</h2>
           <div className="card-actions">
             <button className="btn btn-primary" onClick={handleCreateTask}>
+              <FiPlus size={16} />
               Новая задача
             </button>
           </div>
@@ -75,57 +104,60 @@ const TaskList = ({ tasks, loading, error, onRefresh, onDeleteTask }) => {
 
         <div className="task-filters">
           <div
-            className={`task-filters-filter ${filter === 'all' ? 'active' : ''}`}
-            onClick={() => setFilter('all')}
+            className={`task-filters-filter ${!filters.status ? 'active' : ''}`}
+            onClick={() => handleFilterChange('all')}
           >
             Все
           </div>
           <div
-            className={`task-filters-filter ${filter === 'new' ? 'active' : ''}`}
-            onClick={() => setFilter('new')}
+            className={`task-filters-filter ${filters.status === 'new' ? 'active' : ''}`}
+            onClick={() => handleFilterChange('new')}
           >
             Новые
           </div>
           <div
-            className={`task-filters-filter ${filter === 'in-progress' ? 'active' : ''}`}
-            onClick={() => setFilter('in-progress')}
+            className={`task-filters-filter ${filters.status === 'in-progress' ? 'active' : ''}`}
+            onClick={() => handleFilterChange('in-progress')}
           >
             В процессе
           </div>
           <div
-            className={`task-filters-filter ${filter === 'completed' ? 'active' : ''}`}
-            onClick={() => setFilter('completed')}
+            className={`task-filters-filter ${filters.status === 'completed' ? 'active' : ''}`}
+            onClick={() => handleFilterChange('completed')}
           >
             Завершённые
           </div>
         </div>
 
-        {filteredTasks.length === 0 ? (
+        {tasks.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-state-icon">📝</div>
+            <div className="empty-state-icon">
+              <FiFileText size={32} />
+            </div>
             <p className="empty-state-text">Задачи не найдены</p>
             <button className="btn btn-primary" onClick={handleCreateTask}>
+              <FiPlus size={16} />
               Создать первую задачу
             </button>
           </div>
         ) : (
           <>
             <div className="task-list">
-              {currentTasks.map(task => (
+              {tasks.map(task => (
                 <TaskItem
                   key={task.id}
                   task={task}
                   onEdit={() => handleEditTask(task)}
-                  onDelete={() => onDeleteTask(task.id)}
+                  onDelete={() => handleDeleteClick(task)}
                 />
               ))}
             </div>
 
-            {totalPages > 1 && (
+            {pagination.totalPages > 1 && (
               <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
+                currentPage={pagination.currentPage}
+                totalPages={pagination.totalPages}
+                onPageChange={onPageChange}
               />
             )}
           </>

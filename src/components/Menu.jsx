@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { FiCheckSquare, FiPlus, FiList } from 'react-icons/fi';
 
 const Menu = ({ isOpen, onClose }) => {
   return (
@@ -12,7 +13,9 @@ const Menu = ({ isOpen, onClose }) => {
             onClick={onClose}
             end
           >
-            <span className="menu-icon">✓</span>
+            <span className="menu-icon">
+              <FiList size={18} />
+            </span>
             <span className="menu-text">Все задачи</span>
           </NavLink>
           <NavLink
@@ -20,7 +23,9 @@ const Menu = ({ isOpen, onClose }) => {
             className="menu-item"
             onClick={onClose}
           >
-            <span className="menu-icon">+</span>
+            <span className="menu-icon">
+              <FiPlus size={18} />
+            </span>
             <span className="menu-text">Новая задача</span>
           </NavLink>
         </div>

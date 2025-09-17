@@ -1,35 +1,20 @@
 import React, { useState } from 'react';
-import { deleteTask, updateTask } from '../services/api';
+import { updateTask } from '../services/api';
+import { FiEdit2, FiTrash2, FiClock, FiCheckCircle, FiCircle } from 'react-icons/fi';
+import { RiProgress4Line } from 'react-icons/ri';
 
 const TaskItem = ({ task, onEdit, onDelete }) => {
-  const [isDeleting, setIsDeleting] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
   const handleStatusChange = async (newStatus) => {
     try {
       setIsUpdating(true);
       await updateTask(task.id, { status: newStatus });
-      onDelete(); // Обновляем список
+      onDelete();
     } catch (error) {
       console.error('Ошибка при обновлении статуса:', error);
     } finally {
       setIsUpdating(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!window.confirm('Вы уверены, что хотите удалить эту задачу?')) {
-      return;
-    }
-
-    try {
-      setIsDeleting(true);
-      await deleteTask(task.id);
-      onDelete(); // Обновляем список
-    } catch (error) {
-      console.error('Ошибка при удалении задачи:', error);
-    } finally {
-      setIsDeleting(false);
     }
   };
 
@@ -41,11 +26,25 @@ const TaskItem = ({ task, onEdit, onDelete }) => {
     });
   };
 
+  const getStatusIcon = () => {
+    switch (task.status) {
+      case 'new':
+        return <FiCircle size={14} />;
+      case 'in-progress':
+        return <RiProgress4Line size={14} />;
+      case 'completed':
+        return <FiCheckCircle size={14} />;
+      default:
+        return <FiClock size={14} />;
+    }
+  };
+
   return (
     <div className="task-item">
       <div className="task-item-header">
         <h3 className="task-item-title">{task.title}</h3>
         <span className={`task-item-status task-item-status-${task.status}`}>
+          {getStatusIcon()}
           {task.status === 'new' && 'Новая'}
           {task.status === 'in-progress' && 'В процессе'}
           {task.status === 'completed' && 'Завершена'}
@@ -57,6 +56,7 @@ const TaskItem = ({ task, onEdit, onDelete }) => {
       )}
 
       <div className="task-item-meta">
+        <FiClock size={12} />
         Создано: {formatDate(task.createdAt)}
         {task.updatedAt !== task.createdAt && ` | Обновлено: ${formatDate(task.updatedAt)}`}
       </div>
@@ -77,17 +77,17 @@ const TaskItem = ({ task, onEdit, onDelete }) => {
         <button
           className="btn btn-secondary btn-sm"
           onClick={() => onEdit(task)}
-          disabled={isUpdating || isDeleting}
+          disabled={isUpdating}
         >
-          ✏️
+          <FiEdit2 size={16} />
         </button>
 
         <button
           className="btn btn-danger btn-sm"
-          onClick={handleDelete}
-          disabled={isUpdating || isDeleting}
+          onClick={() => onDelete(task)}
+          disabled={isUpdating}
         >
-          {isDeleting ? '...' : '🗑️'}
+          <FiTrash2 size={16} />
         </button>
       </div>
     </div>

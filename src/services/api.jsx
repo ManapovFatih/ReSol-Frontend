@@ -1,62 +1,75 @@
+import axios from 'axios';
+import { toast } from 'react-toastify';
+
 const API_BASE_URL = 'http://localhost:5000/api';
 
-// Общая функция для выполнения запросов
-async function request(endpoint, options = {}) {
-  const url = `${API_BASE_URL}${endpoint}`;
-  const response = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-    ...options,
-    body: options.body ? JSON.stringify(options.body) : undefined,
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+async function request(config, successMessage = null, errorMessage = null) {
+  try {
+    const response = await apiClient(config);
+    if (successMessage) {
+      toast.success(successMessage);
+    }
+    return response.data;
+  } catch (error) {
+    let errorMsg = errorMessage || 'Произошла ошибка';
+    if (error.response) {
+      errorMsg = `Ошибка ${error.response.status}: ${error.response.data?.message || errorMsg}`;
+    } else if (error.request) {
+      errorMsg = 'Ошибка сети: нет ответа от сервера';
+    }
+    toast.error(errorMsg);
+    throw new Error(errorMsg);
+  }
+}
+
+// Получить задачи с фильтрацией и пагинацией
+export async function getTasks(filters = {}, page = 1, limit = 6) {
+  const params = {
+    page,
+    limit,
+    ...filters
+  };
+
+  return request({
+    url: '/tasks',
+    method: 'GET',
+    params: params,
   });
-
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-
-  return response.json();
 }
 
-// Получить все задачи
-export async function getTasks(filters = {}) {
-  const queryParams = new URLSearchParams();
-
-  if (filters.status) {
-    queryParams.append('status', filters.status);
-  }
-
-  const queryString = queryParams.toString();
-  const endpoint = `/tasks${queryString ? `?${queryString}` : ''}`;
-
-  return request(endpoint);
-}
-
-// Получить задачу по ID
 export async function getTask(id) {
-  return request(`/tasks/${id}`);
+  return request({
+    url: `/tasks/${id}`,
+    method: 'GET',
+  });
 }
 
-// Создать новую задачу
 export async function createTask(taskData) {
-  return request('/tasks', {
+  return request({
+    url: '/tasks',
     method: 'POST',
-    body: taskData,
-  });
+    data: taskData,
+  }, 'Задача успешно создана!', 'Ошибка при создании задачи');
 }
 
-// Обновить задачу
 export async function updateTask(id, updates) {
-  return request(`/tasks/${id}`, {
+  return request({
+    url: `/tasks/${id}`,
     method: 'PATCH',
-    body: updates,
-  });
+    data: updates,
+  }, 'Задача успешно обновлена!', 'Ошибка при обновлении задачи');
 }
 
-// Удалить задачу
 export async function deleteTask(id) {
-  return request(`/tasks/${id}`, {
+  return request({
+    url: `/tasks/${id}`,
     method: 'DELETE',
-  });
+  }, 'Задача успешно удалена!', 'Ошибка при удалении задачи');
 }
