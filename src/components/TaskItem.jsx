@@ -16,17 +16,11 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange }) => {
   ];
 
   const handleStatusChange = async (newStatus) => {
-    try {
-      setIsUpdating(true);
-      await updateTask(task.id, { status: newStatus });
-      if (onStatusChange) {
-        onStatusChange(task.id, newStatus);
-      }
-    } catch (error) {
-      console.error('Ошибка при обновлении статуса:', error);
-    } finally {
-      setIsUpdating(false);
+
+    if (onStatusChange) {
+      onStatusChange(task.id, newStatus);
     }
+
   };
 
   const handleCardClick = () => {
