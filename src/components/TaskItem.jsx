@@ -1,21 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { updateTask } from '../services/api';
-import { FiEdit2, FiTrash2, FiClock, FiCheckCircle, FiCircle } from 'react-icons/fi';
+import { FiEdit2, FiTrash2, FiClock, FiCheckCircle, FiCircle, FiEye } from 'react-icons/fi';
 import { RiProgress4Line } from 'react-icons/ri';
+import { useNavigate } from 'react-router-dom';
+import CustomSelect from './CustomSelect';
 
-const TaskItem = ({ task, onEdit, onDelete }) => {
+const TaskItem = ({ task, onEdit, onDelete, onStatusChange }) => {
   const [isUpdating, setIsUpdating] = useState(false);
+  const navigate = useNavigate();
+
+  const statusOptions = [
+    { value: 'new', label: 'Новая' },
+    { value: 'in-progress', label: 'В процессе' },
+    { value: 'completed', label: 'Завершена' }
+  ];
 
   const handleStatusChange = async (newStatus) => {
     try {
       setIsUpdating(true);
       await updateTask(task.id, { status: newStatus });
-      onDelete();
+      if (onStatusChange) {
+        onStatusChange(task.id, newStatus);
+      }
     } catch (error) {
       console.error('Ошибка при обновлении статуса:', error);
     } finally {
       setIsUpdating(false);
     }
+  };
+
+  const handleCardClick = () => {
+    navigate(`/tasks/view/${task.id}`);
+  };
+
+  const handleEditClick = (e) => {
+    e.stopPropagation();
+    onEdit(task);
+  };
+
+  const handleDeleteClick = (e) => {
+    e.stopPropagation();
+    onDelete(task);
   };
 
   const formatDate = (dateString) => {
@@ -40,7 +65,7 @@ const TaskItem = ({ task, onEdit, onDelete }) => {
   };
 
   return (
-    <div className="task-item">
+    <div className="task-item" onClick={handleCardClick}>
       <div className="task-item-header">
         <h3 className="task-item-title">{task.title}</h3>
         <span className={`task-item-status task-item-status-${task.status}`}>
@@ -61,22 +86,19 @@ const TaskItem = ({ task, onEdit, onDelete }) => {
         {task.updatedAt !== task.createdAt && ` | Обновлено: ${formatDate(task.updatedAt)}`}
       </div>
 
-      <div className="task-item-actions">
-        <select
-          className="form-control"
-          value={task.status}
-          onChange={(e) => handleStatusChange(e.target.value)}
-          disabled={isUpdating}
-          style={{ width: 'auto', marginRight: 'auto' }}
-        >
-          <option value="new">Новая</option>
-          <option value="in-progress">В процессе</option>
-          <option value="completed">Завершена</option>
-        </select>
+      <div className="task-item-actions" onClick={(e) => e.stopPropagation()}>
+        <div >
+          <CustomSelect
+            value={task.status}
+            onChange={handleStatusChange}
+            disabled={isUpdating}
+            options={statusOptions}
+          />
+        </div>
 
         <button
           className="btn btn-secondary btn-sm"
-          onClick={() => onEdit(task)}
+          onClick={handleEditClick}
           disabled={isUpdating}
         >
           <FiEdit2 size={16} />
@@ -84,10 +106,18 @@ const TaskItem = ({ task, onEdit, onDelete }) => {
 
         <button
           className="btn btn-danger btn-sm"
-          onClick={() => onDelete(task)}
+          onClick={handleDeleteClick}
           disabled={isUpdating}
         >
           <FiTrash2 size={16} />
+        </button>
+
+        <button
+          className="btn btn-info btn-sm"
+          onClick={handleCardClick}
+          disabled={isUpdating}
+        >
+          <FiEye size={16} />
         </button>
       </div>
     </div>

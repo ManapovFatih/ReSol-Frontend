@@ -14,7 +14,8 @@ const TaskList = ({
   onRefresh,
   onDeleteTask,
   onFilterChange,
-  onPageChange
+  onPageChange,
+  onStatusChange
 }) => {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({
@@ -54,36 +55,38 @@ const TaskList = ({
     onFilterChange(filter === 'all' ? {} : { status: filter });
   };
 
+  const handleStatusChange = (taskId, newStatus) => {
+    if (onStatusChange) {
+      onStatusChange(taskId, newStatus);
+    }
+  };
+
   if (loading) {
     return (
-      <div className="tasks-container">
-        <div className="loading">
-          <div className="loading-spinner"></div>
-        </div>
+      <div className="loading">
+        <div className="loading-spinner"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="tasks-container">
-        <div className="card">
-          <div className="empty-state">
-            <div className="empty-state-icon">
-              <FiAlertTriangle size={32} />
-            </div>
-            <p className="empty-state-text">{error}</p>
-            <button className="btn btn-primary" onClick={onRefresh}>
-              Попробовать снова
-            </button>
+      <div className="card">
+        <div className="empty-state">
+          <div className="empty-state-icon">
+            <FiAlertTriangle size={32} />
           </div>
+          <p className="empty-state-text">{error}</p>
+          <button className="btn btn-primary" onClick={onRefresh}>
+            Попробовать снова
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="tasks-container">
+    <div>
       <DeleteModal
         isOpen={deleteModal.isOpen}
         taskTitle={deleteModal.taskTitle}
@@ -147,8 +150,9 @@ const TaskList = ({
                 <TaskItem
                   key={task.id}
                   task={task}
-                  onEdit={() => handleEditTask(task)}
-                  onDelete={() => handleDeleteClick(task)}
+                  onEdit={handleEditTask}
+                  onDelete={handleDeleteClick}
+                  onStatusChange={handleStatusChange}
                 />
               ))}
             </div>

@@ -51,6 +51,10 @@ $xs-bp: 575px;
   align-items: center;
 }
 
+@mixin boxShadow($size: 15px) {
+  box-shadow: 0px 4px $size rgba(100, 100, 100, 0.08);
+}
+
 @mixin disabled-scroll {
   &::-webkit-scrollbar {
     width: 0px;
@@ -106,6 +110,24 @@ $xs-bp: 575px;
   &::-webkit-scrollbar-button:horizontal:start:decrement,
   &::-webkit-scrollbar-button:horizontal:end:increment {
     display: none;
+  }
+}
+
+@mixin clamp($count, $line, $strict: false) {
+  display: -webkit-box;
+  -webkit-line-clamp: $count;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: $line;
+  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+
+  @if $strict {
+    height: $line * $count;
+  }
+
+  @else {
+    max-height: $line * $count;
   }
 }
 
@@ -194,6 +216,223 @@ select,
   }
 }
 
+* {
+  scrollbar-width: thin;
+  scrollbar-color: $main-color $bg-second;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+  background-color: $bg-second;
+  border-radius: $radius-xs;
+}
+
+::-webkit-scrollbar-track {
+  background-color: $bg-second;
+  border-radius: $radius-xs;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: $main-color;
+  border-radius: $radius-xs;
+  transition: $transition;
+
+  &:hover {
+    background-color: $red;
+  }
+
+  &:active {
+    background-color: darken($red, 10%);
+  }
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+.custom-select {
+  position: relative;
+  width: auto;
+  min-width: 120px;
+  max-width: 200px;
+  font-family: inherit;
+  font-family: inherit;
+  z-index: 1000 !important;
+
+  .select-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border: 1px solid $light-gray;
+    border-radius: $radius-xs;
+    background: $bg-main;
+    cursor: pointer;
+    transition: all $transition;
+    min-height: 44px;
+    position: relative;
+    z-index: 10;
+    width: 100%;
+
+    &:hover {
+      border-color: $main-color;
+      box-shadow: 0 0 0 2px rgba($main-color, 0.1);
+    }
+
+    .selected-value {
+      color: $font-color;
+      font-weight: 500;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .select-arrow {
+      color: $font-faded;
+      transition: transform $transition;
+      font-size: 12px;
+      margin-left: 8px;
+      flex-shrink: 0;
+    }
+  }
+
+  &.open {
+    z-index: 1100 !important;
+
+    .select-header {
+      border-color: $main-color;
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      box-shadow: 0 0 0 2px rgba($main-color, 0.2);
+
+      .select-arrow {
+        transform: rotate(180deg);
+        color: $main-color;
+      }
+    }
+
+    .select-dropdown {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+      visibility: visible;
+      z-index: 1001 !important;
+
+    }
+  }
+
+  &.disabled {
+    .select-header {
+      background-color: $bg-second;
+      border-color: $light-gray;
+      cursor: not-allowed;
+
+      &:hover {
+        border-color: $light-gray;
+        box-shadow: none;
+      }
+
+      .selected-value {
+        color: $font-faded;
+      }
+    }
+  }
+
+  .select-dropdown {
+    position: absolute;
+    top: calc(100% - 1px);
+    left: 0;
+    right: 0;
+    background: $bg-main;
+    border: 1px solid $main-color;
+    border-top: none;
+    border-radius: 0 0 $radius-xs $radius-xs;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1101 !important;
+    max-height: 220px;
+    overflow-y: auto;
+    display: none;
+    opacity: 0;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    transition: all 0.2s ease-out;
+    visibility: hidden;
+
+    .dropdown-item {
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: all $transition;
+      color: $font-color;
+      border-bottom: 1px solid $gray;
+      position: relative;
+
+      &:last-child {
+        border-bottom: none;
+        border-radius: 0 0 $radius-xs $radius-xs;
+      }
+
+      &:hover {
+        background-color: rgba($main-color, 0.08);
+        color: $main-color;
+      }
+
+      &.selected {
+        background-color: rgba($main-color-green, 0.1);
+        color: $main-color-green;
+        font-weight: 600;
+
+        &::after {
+          content: '✓';
+          position: absolute;
+          right: 16px;
+          color: $main-color-green;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: $sm-bp) {
+  .custom-select {
+    max-width: 100%;
+
+    .select-header {
+      padding: 10px 14px;
+      min-height: 40px;
+    }
+
+    .dropdown-item {
+      padding: 10px 14px;
+    }
+  }
+}
+
+.custom-select * {
+  box-sizing: border-box;
+}
+
+.select-dropdown {
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $bg-second;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $light-gray;
+    border-radius: 3px;
+
+    &:hover {
+      background: $font-faded;
+    }
+  }
+}
+
 h1 {
   margin-bottom: 1em;
 }
@@ -249,6 +488,17 @@ textarea {
     margin: 0;
     font-size: 20px;
     font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 1em;
+
+    h1 {
+      margin: 0;
+    }
+
+    img {
+      height: 50px;
+    }
   }
 
   &-actions {
@@ -572,6 +822,8 @@ textarea {
     margin: 0 0 16px 0;
     color: $font-color;
     line-height: 1.5;
+    word-break: break-all;
+    max-width: 100%;
 
     &:last-of-type {
       margin-bottom: 24px;
@@ -596,35 +848,6 @@ textarea {
     flex-direction: column;
   }
 
-  .btn {
-    min-width: 100px;
-
-    @media (max-width: $xs-bp) {
-      min-width: auto;
-      width: 100%;
-    }
-  }
-
-  .btn-secondary {
-    background: $bg-second;
-    color: $font-color;
-    border: 1px solid $bg-second;
-
-    &:hover {
-      background: darken($bg-second, 5%);
-      border-color: darken($bg-second, 5%);
-    }
-  }
-
-  .btn-danger {
-    background: $main-color;
-    border: 1px solid $main-color;
-
-    &:hover {
-      background: darken($main-color, 10%);
-      border-color: darken($main-color, 10%);
-    }
-  }
 }
 
 
@@ -663,6 +886,129 @@ textarea {
   }
 }
 
+.home {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1em;
+}
+
+.task-view {
+  width: 100%;
+  height: 100%;
+
+  &-content {
+    padding: 2rem;
+
+    @media (max-width: $sm-bp) {
+      padding: 1.5rem;
+    }
+  }
+
+  &-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+
+    @media (max-width: $sm-bp) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+
+  &-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: $font-color;
+    margin: 0;
+    flex: 1;
+
+    @media (max-width: $sm-bp) {
+      font-size: 1.5rem;
+    }
+  }
+
+  &-status {
+    padding: 4px 8px;
+    border-radius: $radius-xs;
+    font-size: 12px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+
+    svg {
+      margin-right: 1em;
+    }
+
+    &-new {
+      background-color: rgba($font-faded, 0.1);
+      color: $font-faded;
+    }
+
+    &-in-progress {
+      background-color: rgba($accent, 0.1);
+      color: $accent;
+    }
+
+    &-completed {
+      background-color: rgba($main-color-green, 0.1);
+      color: $main-color-green;
+    }
+  }
+
+  &-section {
+    margin-bottom: 2rem;
+
+    h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: $font-color;
+      margin-bottom: 1rem;
+    }
+  }
+
+  &-description {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: $font-color;
+    background: $bg-second;
+    padding: 1.5rem;
+    border-radius: $radius-sm;
+    margin: 0;
+  }
+
+  &-no-description {
+    font-style: italic;
+    color: $light-gray;
+    background: $bg-second;
+    padding: 1.5rem;
+    border-radius: $radius-sm;
+    margin: 0;
+  }
+
+  &-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  &-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: $font-faded;
+
+    svg {
+      flex-shrink: 0;
+    }
+  }
+}
+
 .task-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -680,9 +1026,12 @@ textarea {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: transform $transition, box-shadow $transition;
   position: relative;
+  transform: none;
+  backface-visibility: hidden;
 
   &:hover {
-    transform: translateY(-2px);
+    z-index: 5;
+    transform: translateY(-2px) translateZ(0);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
 
@@ -698,6 +1047,7 @@ textarea {
     font-weight: 600;
     margin-right: 10px;
     word-break: break-word;
+    @include clamp(1, 1.3em);
   }
 
   &-status {
@@ -729,6 +1079,7 @@ textarea {
   }
 
   &-description {
+    @include clamp(1, 1.3em);
     color: $font-faded;
     margin-bottom: 16px;
     word-break: break-word;
@@ -744,6 +1095,9 @@ textarea {
   }
 
   &-actions {
+    position: relative;
+    z-index: auto;
+    overflow: visible;
     display: flex;
     justify-content: flex-end;
     gap: 8px;

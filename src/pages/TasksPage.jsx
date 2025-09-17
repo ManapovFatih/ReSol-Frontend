@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import TaskList from '../components/TaskList';
-import { getTasks, deleteTask } from '../services/api';
+import { getTasks, deleteTask, updateTask } from '../services/api';
+import Meta from '../components/Meta';
 
 const TasksPage = () => {
   const [tasks, setTasks] = useState([]);
@@ -19,11 +20,9 @@ const TasksPage = () => {
       const data = await getTasks(filters, page);
       setTasks(data.tasks || data);
 
-
       if (data.pagination) {
         setPagination(data.pagination);
       } else {
-
         setPagination({
           currentPage: page,
           totalPages: Math.ceil((data.tasks || data).length / 6),
@@ -49,6 +48,23 @@ const TasksPage = () => {
     }
   };
 
+  const handleStatusChange = async (taskId, newStatus) => {
+    try {
+      setTasks(prevTasks =>
+        prevTasks.map(task =>
+          task.id === taskId ? { ...task, status: newStatus, updatedAt: new Date().toISOString() } : task
+        )
+      );
+
+      await updateTask(taskId, { status: newStatus });
+
+      await fetchTasks(pagination.currentPage, filters);
+    } catch (err) {
+      console.error(err);
+      await fetchTasks(pagination.currentPage, filters);
+    }
+  };
+
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
     fetchTasks(1, newFilters);
@@ -64,6 +80,7 @@ const TasksPage = () => {
 
   return (
     <div>
+      <Meta title={"Список задач"} />
       <TaskList
         tasks={tasks}
         loading={loading}
@@ -72,6 +89,7 @@ const TasksPage = () => {
         filters={filters}
         onRefresh={() => fetchTasks(pagination.currentPage, filters)}
         onDeleteTask={handleDeleteTask}
+        onStatusChange={handleStatusChange}
         onFilterChange={handleFilterChange}
         onPageChange={handlePageChange}
       />

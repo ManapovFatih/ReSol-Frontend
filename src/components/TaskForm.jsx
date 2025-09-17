@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import CustomSelect from './CustomSelect';
 
 const TaskForm = ({ task, onBack, onSave }) => {
   const [title, setTitle] = useState('');
@@ -6,6 +7,12 @@ const TaskForm = ({ task, onBack, onSave }) => {
   const [status, setStatus] = useState('new');
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const statusOptions = [
+    { value: 'new', label: 'Новая' },
+    { value: 'in-progress', label: 'В процессе' },
+    { value: 'completed', label: 'Завершена' }
+  ];
 
   useEffect(() => {
     if (task) {
@@ -47,7 +54,7 @@ const TaskForm = ({ task, onBack, onSave }) => {
   };
 
   return (
-    <div className="tasks-container">
+    <div>
       <div className="card">
         <div className="card-header">
           <h2 className="card-title">
@@ -85,15 +92,13 @@ const TaskForm = ({ task, onBack, onSave }) => {
 
           <div className="form-group">
             <label className="form-label">Статус</label>
-            <select
+
+            <CustomSelect
               value={status}
-              onChange={(e) => setStatus(e.target.value)}
+              onChange={setStatus}
               disabled={isSubmitting}
-            >
-              <option value="new">Новая</option>
-              <option value="in-progress">В процессе</option>
-              <option value="completed">Завершена</option>
-            </select>
+              options={statusOptions}
+            />
           </div>
 
           <div className="form-actions">

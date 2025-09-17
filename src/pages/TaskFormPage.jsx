@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import TaskForm from '../components/TaskForm';
 import { getTask, createTask, updateTask } from '../services/api';
+import Meta from '../components/Meta';
 
 const TaskFormPage = () => {
     const { id } = useParams();
@@ -39,7 +40,7 @@ const TaskFormPage = () => {
         } catch (err) {
             setError(id ? 'Не удалось обновить задачу' : 'Не удалось создать задачу');
             console.error('Ошибка сохранения:', err);
-            throw err; // Пробрасываем ошибку для обработки в TaskForm
+            throw err;
         }
     };
 
@@ -52,6 +53,7 @@ const TaskFormPage = () => {
 
     return (
         <div>
+            <Meta title={id ? "Редактирование задачи" : "Новая задача"} />
             <TaskForm
                 task={task}
                 onSave={handleSave}
