@@ -6,7 +6,7 @@ const HomePage = () => {
         <div>
             <h1>Добро пожаловать!</h1>
             <p>Это главная страница приложения для управления задачами.</p>
-            <Link to="/tasks" className="btn">Перейти к задачам</Link>
+            <Link to="/tasks" className="btn btn-primary">Перейти к задачам</Link>
         </div>
     );
 };

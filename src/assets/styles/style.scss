@@ -246,6 +246,7 @@ textarea {
   z-index: 100;
 
   &-title {
+    margin: 0;
     font-size: 20px;
     font-weight: 600;
   }
@@ -274,6 +275,10 @@ textarea {
   @media (max-width: $md-bp) {
     transform: translateX(-100%);
 
+    &-item {
+      justify-content: center;
+    }
+
     &.open {
       transform: translateX(0);
     }
@@ -288,6 +293,7 @@ textarea {
     padding: 12px 20px;
     display: flex;
     align-items: center;
+
     gap: 12px;
     cursor: pointer;
     transition: background-color $transition;
@@ -537,7 +543,7 @@ textarea {
   }
 }
 
-// Анимации
+
 @keyframes modalFadeIn {
   from {
     background-color: rgba($font-color, 0);
@@ -560,7 +566,7 @@ textarea {
   }
 }
 
-// Специфичные стили для модального окна удаления
+
 .delete-modal-content {
   p {
     margin: 0 0 16px 0;
@@ -621,7 +627,7 @@ textarea {
   }
 }
 
-// Адаптивность
+
 @media (max-width: $sm-bp) {
   .modal-content {
     max-height: 95vh;
@@ -729,6 +735,9 @@ textarea {
   }
 
   &-meta {
+    display: flex;
+    align-items: center;
+    gap: 1em;
     font-size: 12px;
     color: $light-gray;
     margin-bottom: 16px;
@@ -923,9 +932,6 @@ textarea {
 }
 
 @media (max-width: $sm-bp) {
-  .main-content {
-    padding: 15px;
-  }
 
   .header {
     padding: 0 15px;

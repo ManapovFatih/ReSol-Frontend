@@ -93,7 +93,7 @@ const TaskList = ({
 
       <div className="card">
         <div className="card-header">
-          <h2 className="card-title">Мои задачи</h2>
+          <h2 className="card-title">Мои задачи <span className='btn btn-secondary'>{pagination?.totalCount}</span></h2>
           <div className="card-actions">
             <button className="btn btn-primary" onClick={handleCreateTask}>
               <FiPlus size={16} />

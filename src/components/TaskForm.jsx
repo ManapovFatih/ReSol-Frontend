@@ -37,11 +37,10 @@ const TaskForm = ({ task, onBack, onSave }) => {
 
     try {
       const taskData = { title, description, status };
-      await onSave(taskData); // Передаем данные в onSave
+      await onSave(taskData);
     } catch (error) {
       console.error('Ошибка при сохранении задачи:', error);
-      // Ошибка будет обработана в родительском компоненте
-      throw error; // Пробрасываем ошибку дальше
+      throw error;
     } finally {
       setIsSubmitting(false);
     }

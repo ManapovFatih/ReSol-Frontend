@@ -19,11 +19,11 @@ const TasksPage = () => {
       const data = await getTasks(filters, page);
       setTasks(data.tasks || data);
 
-      // Если сервер возвращает пагинацию
+
       if (data.pagination) {
         setPagination(data.pagination);
       } else {
-        // Fallback для старого API
+
         setPagination({
           currentPage: page,
           totalPages: Math.ceil((data.tasks || data).length / 6),
@@ -43,7 +43,6 @@ const TasksPage = () => {
   const handleDeleteTask = async (taskId) => {
     try {
       await deleteTask(taskId);
-      // Перезагружаем текущую страницу с теми же фильтрами
       await fetchTasks(pagination.currentPage, filters);
     } catch (err) {
       console.error(err);
@@ -52,7 +51,7 @@ const TasksPage = () => {
 
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
-    fetchTasks(1, newFilters); // Сбрасываем на первую страницу при изменении фильтров
+    fetchTasks(1, newFilters);
   };
 
   const handlePageChange = (page) => {

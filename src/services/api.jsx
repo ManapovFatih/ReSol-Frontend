@@ -29,7 +29,6 @@ async function request(config, successMessage = null, errorMessage = null) {
   }
 }
 
-// Получить задачи с фильтрацией и пагинацией
 export async function getTasks(filters = {}, page = 1, limit = 6) {
   const params = {
     page,
